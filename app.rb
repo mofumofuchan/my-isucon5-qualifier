@@ -1,8 +1,10 @@
+# coding: utf-8
 require 'sinatra/base'
 require 'mysql2'
 require 'mysql2-cs-bind'
 require 'tilt/erubis'
 require 'erubis'
+require 'rack-mini-profiler'
 
 module Isucon5
   class AuthenticationError < StandardError; end
@@ -17,6 +19,7 @@ module Isucon5
 end
 
 class Isucon5::WebApp < Sinatra::Base
+  use Rack::MiniProfiler
   use Rack::Session::Cookie
   set :erb, escape_html: true
   set :public_folder, File.expand_path('../../static', __FILE__)
@@ -187,6 +190,7 @@ SQL
       entries_of_friends << entry
       break if entries_of_friends.size >= 10
     end
+    #friends = db.query('SELECT user_id FROM entries ORDER BY created_at DESC LIMIT 1000')
 
     comments_of_friends = []
     db.query('SELECT * FROM comments ORDER BY created_at DESC LIMIT 1000').each do |comment|
