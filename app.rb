@@ -20,8 +20,10 @@ module Isucon5
 end
 
 class Isucon5::WebApp < Sinatra::Base
-  use Rack::MiniProfiler
-  use Rack::Lineprof
+  if ENV['RACK_ENV'] == "development"
+    use Rack::MiniProfiler
+    use Rack::Lineprof
+  end
   use Rack::Session::Cookie
   set :erb, escape_html: true
   set :public_folder, File.expand_path('../../static', __FILE__)
