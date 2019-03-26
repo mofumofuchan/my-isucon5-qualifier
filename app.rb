@@ -5,6 +5,7 @@ require 'mysql2-cs-bind'
 require 'tilt/erubis'
 require 'erubis'
 require 'rack-mini-profiler'
+require 'rack-lineprof'
 
 module Isucon5
   class AuthenticationError < StandardError; end
@@ -20,6 +21,7 @@ end
 
 class Isucon5::WebApp < Sinatra::Base
   use Rack::MiniProfiler
+  use Rack::Lineprof
   use Rack::Session::Cookie
   set :erb, escape_html: true
   set :public_folder, File.expand_path('../../static', __FILE__)

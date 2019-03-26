@@ -7,4 +7,5 @@ gem "mysql2-cs-bind"
 gem "erubis"
 gem "unicorn"
 gem "rack-mini-profiler"
+gem "rack-lineprof"
 
