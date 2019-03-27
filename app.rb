@@ -187,8 +187,14 @@ LIMIT 10
 SQL
     comments_for_me = db.xquery(comments_for_me_query, current_user[:id])
 
-    friends_query = "SELECT another FROM relations WHERE one = ?"
-    friend_ids = db.xquery(friends_query, session[:user_id]).map {|f| f[:another]}
+    friends_query = <<SQL
+SELECT another, created_at
+FROM relations
+WHERE one = ?
+ORDER BY created_at DESC
+SQL
+    friends_result = db.xquery(friends_query, session[:user_id])
+    friend_ids = friends_result.map {|f| f[:another]}
     entries_of_friends_query = <<SQL
 SELECT * FROM entries
 WHERE user_id IN (#{"?," * (friend_ids.size - 1)}?)
@@ -207,12 +213,9 @@ SQL
       break if comments_of_friends.size >= 10
     end
 
-    # TODO 修正
-    friends_query = 'SELECT * FROM relations WHERE one = ? OR another = ? ORDER BY created_at DESC'
     friends_map = {}
-    db.xquery(friends_query, current_user[:id], current_user[:id]).each do |rel|
-      key = (rel[:one] == current_user[:id] ? :another : :one)
-      friends_map[rel[key]] ||= rel[:created_at]
+    friends_result.each do |rel|
+      friends_map[rel[:another]] ||= rel[:created_at]
     end
     friends = friends_map.map{|user_id, created_at| [user_id, created_at]}
 
